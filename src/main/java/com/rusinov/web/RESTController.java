@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,16 +18,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rusinov.main.Application;
+import com.rusinov.main.DownloadStorage;
 import com.rusinov.torrent.TorrentClient;
 
 @RestController
 public class RESTController {
 
-	@Resource
-	protected HttpServletRequest request;
+	@Autowired
+	private TorrentClient torrentClient;
+
+	@Autowired
+	private DownloadStorage downloadStorage;
 
 	@Resource
-	protected HttpServletResponse response;
+	private HttpServletRequest request;
+
+	@Resource
+	private HttpServletResponse response;
 
 	@RequestMapping(value = { "hello" }, method = RequestMethod.GET)
 	public ResponseEntity<String> hello() {
@@ -80,7 +88,7 @@ public class RESTController {
 			System.out.println("Downloading torrent URL: " + body.getTorrentURL());
 			System.out.println("Downloading torrent Subs: " + body.getSubtitleURL());
 
-			TorrentClient.dowload(new URL(body.getTorrentURL()),
+			torrentClient.dowload(new URL(body.getTorrentURL()),
 					new File(Application.DOWNLOAD_DIR + "/" + body.getTaskName()));
 			
 			// TODO: download subs
