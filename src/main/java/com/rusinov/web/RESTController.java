@@ -1,24 +1,22 @@
 package com.rusinov.web;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
+import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.rusinov.torrent.DownloadUtils;
+import com.rusinov.main.Application;
 import com.rusinov.torrent.TorrentClient;
 
 @RestController
@@ -35,44 +33,64 @@ public class RESTController {
 		return new ResponseEntity<String>("hello", HttpStatus.OK);
 	}
 
-	@RequestMapping(value = { "hello" }, method = RequestMethod.POST)
-	public ResponseEntity<String> downloadTorrent() {
-		return new ResponseEntity<String>("hello", HttpStatus.OK);
+	@RequestMapping(value = { "downloadingNow" }, method = RequestMethod.GET)
+	public ResponseEntity<List<Response>> downloadingNow() {
+
+		Response res1 = new Response();
+		res1.setDownloadProgress("100%");
+		res1.setTaskName("task1");
+
+		Response res2 = new Response();
+		res2.setDownloadProgress("90%");
+		res2.setTaskName("task2");
+
+		List<Response> downloadingNowList = new LinkedList<>();
+		downloadingNowList.add(res1);
+		downloadingNowList.add(res2);
+
+		return new ResponseEntity<List<Response>>(downloadingNowList, HttpStatus.OK);
+
 	}
 
-	@RequestMapping(value = { "upload" }, method = RequestMethod.POST)
-	public ResponseEntity<String> upload(@RequestParam("torrentName") String torrentName,
-			@RequestParam("torrentPath") String torrentPath,
-			@RequestParam(value = "file", required = false) MultipartFile file) throws Exception {
+	@RequestMapping(value = { "downloadedList" }, method = RequestMethod.GET)
+	public ResponseEntity<List<Response>> downloadedList() {
+		
+		Response res1 = new Response();
+		res1.setDownloadProgress("100%");
+		res1.setTaskName("task1");
 
-		// download torrent file
-		File torrent = DownloadUtils.downloadTorrentFile(torrentPath, torrentName);
-		// download additional file (subtitles)
-		if (file != null && !file.isEmpty()) {
-			DownloadUtils.downloadFile(file.getInputStream(), getFileName(request));
+		Response res2 = new Response();
+		res2.setDownloadProgress("90%");
+		res2.setTaskName("task2");
+
+		List<Response> downloadList = new LinkedList<>();
+		downloadList.add(res1);
+		downloadList.add(res2);
+		
+		return new ResponseEntity<List<Response>>(downloadList, HttpStatus.OK);
+	}
+
+	@RequestMapping(value = { "/downloadTorrent" }, method = RequestMethod.POST)
+	public ResponseEntity<Response> downloadTorrent(@RequestBody Request body) {
+		Response response = new Response();
+
+		try {
+			// download torrent file
+			System.out.println("Downloading torrent Name: " + body.getTaskName());
+			System.out.println("Downloading torrent URL: " + body.getTorrentURL());
+			System.out.println("Downloading torrent Subs: " + body.getSubtitleURL());
+
+			TorrentClient.dowload(new URL(body.getTorrentURL()),
+					new File(Application.DOWNLOAD_DIR + "/" + body.getTaskName()));
+			
+			// TODO: download subs
+			// DownloadUtils.downloadFile(file.getInputStream(), getFileName(request))
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		TorrentClient.dowload(torrent);
-
-		response.sendRedirect("/");
-		return new ResponseEntity<String>(HttpStatus.OK);
+		return new ResponseEntity<Response>(response, HttpStatus.OK);
 	}
 
-	private String getFileName(HttpServletRequest request) throws IOException, ServletException {
-		for (Part part : request.getParts()) {
-			if ("file".equals(part.getName())) {
-				Collection<String> headers = part.getHeaders("content-disposition");
-				if (headers == null || headers.isEmpty())
-					continue;
-				return parseFileName(headers.iterator().next());
-			}
-		}
-		return "default";
-	}
-
-	private String parseFileName(String contentDisposition) {
-		// form-data; name=\"file\"; filename=\"nameeeee.jpg\"
-		int begin = contentDisposition.indexOf("filename=") + "filename=".length() + 1;
-		return contentDisposition.substring(begin, contentDisposition.length() - 1);
-	}
 }

@@ -45,10 +45,8 @@ jar {
 }
 
 dependencies {
-	compile("com.turn:ttorrent:1.4")
-	compile("org.springframework.security:spring-security-core:5.0.6.RELEASE")
-	compile("org.springframework.security:spring-security-web:5.0.6.RELEASE")
-	compile("org.springframework.security:spring-security-config:5.0.6.RELEASE")
+	compile("com.github.atomashpolskiy:bt-core:1.7")
+	compile("javax.validation:validation-api:2.0.1.Final")
     compile("org.springframework.boot:spring-boot-starter-web:2.0.3.RELEASE")   
 }
 

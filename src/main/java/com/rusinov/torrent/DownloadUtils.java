@@ -19,14 +19,14 @@ public class DownloadUtils {
 
 	public static File downloadFile(URL url, String fileName) throws IOException {
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		File file = new File(Application.ROOT + fileName);
+		File file = new File(Application.DOWNLOAD_DIR + fileName);
 		file.getParentFile().mkdirs();
 		FileCopyUtils.copy(conn.getInputStream(), new FileOutputStream(file));
 		return file;
 	}
 
 	public static File downloadFile(InputStream in, String fileName) throws IOException {
-		File file = new File(Application.ROOT + fileName);
+		File file = new File(Application.DOWNLOAD_DIR + fileName);
 		file.getParentFile().mkdirs();
 		FileCopyUtils.copy(in, new FileOutputStream(file));
 		return file;
@@ -39,7 +39,7 @@ public class DownloadUtils {
 			throw new Exception("Torrent id not found in link");
 		}
 		String _fileName = fileName + ".torrent";
-		return downloadFile(new URL(Application.ZAMUNDA_DOWNLOAD_PATH + torrentId + "/" + _fileName), _fileName);
+		return downloadFile(new URL(Application.ZAMUNDA_DOWNLOAD_PATH + torrentId), _fileName);
 	}
 
 	private static Map<String, String> splitQuery(URL url) {
