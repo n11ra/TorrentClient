@@ -1,5 +1,11 @@
-.gradle
-.settings
+.gradle/
+.settings/
 .classpath
 .project
-/bin
+bin/
+build/
+dist/
+*.dist
+.tmp
+*.class
+*.war
