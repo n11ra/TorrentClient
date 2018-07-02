@@ -1,0 +1,54 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.10.RELEASE'
+	}
+	repositories {
+		mavenCentral()	   
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+apply plugin: 'war'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+	version = '0.0.1-SNAPSHOT'
+}
+
+processResources {
+    from ('static/') {
+        into 'static'
+    }
+    from ('config/') {
+        into 'config'
+    }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+springBoot {
+    executable = true
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.valentine.server.Application'
+    }
+}
+
+dependencies {
+	compile("com.turn:ttorrent:1.4")
+	compile("org.springframework.security:spring-security-core:5.0.6.RELEASE")
+	compile("org.springframework.security:spring-security-web:5.0.6.RELEASE")
+	compile("org.springframework.security:spring-security-config:5.0.6.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-web:2.0.3.RELEASE")   
+}
+
