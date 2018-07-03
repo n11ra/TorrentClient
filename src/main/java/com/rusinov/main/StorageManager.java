@@ -20,11 +20,12 @@ public class StorageManager {
 	Map<String, DownloadedInfo> downloaded = new ConcurrentHashMap<>();
 
 	public StorageManager() throws IOException {
+		// initial scan
+		loadStorage();
+	}
 
-		// TODO: scan for downloads and populate downloaded
-		addToDownloading("Task1", new DownloadingInfo(new Date(), "11%"));
-
-		
+	public void loadStorage() throws IOException {
+		downloaded.clear();
 		for (File file : new File(Application.ROOT_DIR).listFiles()) {
 			if (file.isDirectory()) {
 				String taskName = file.getName();
@@ -65,7 +66,8 @@ public class StorageManager {
 		if (downloading.containsKey(taskName)) {
 			FileSystemUtils.deleteRecursively(new File(Application.ROOT_DIR + "/" + taskName));
 			removeFromDownloading(taskName);
-		} else {
+		}
+		if (downloaded.containsKey(taskName)) {
 			if (filePath == null) {
 				FileSystemUtils.deleteRecursively(new File(Application.ROOT_DIR + "/" + taskName));
 				removeFromDownloaded(taskName);

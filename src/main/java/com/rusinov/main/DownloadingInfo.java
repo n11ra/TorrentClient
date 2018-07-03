@@ -2,15 +2,19 @@ package com.rusinov.main;
 
 import java.util.Date;
 
+import com.rusinov.torrent.TorrentClient;
+
 public class DownloadingInfo {
 
 	private Date date;
 	private String downloadingProgress;
+	private TorrentClient torrentClient;
 
-	public DownloadingInfo(Date date, String downloadingProgress) {
+	public DownloadingInfo(Date date, String downloadingProgress, TorrentClient torrentClient) {
 		super();
 		this.date = date;
 		this.downloadingProgress = downloadingProgress;
+		this.torrentClient = torrentClient;
 	}
 
 	public Date getDate() {
@@ -29,5 +33,12 @@ public class DownloadingInfo {
 		this.downloadingProgress = downloadingProgress;
 	}
 
+	public TorrentClient getTorrentClient() {
+		return torrentClient;
+	}
+
+	public void setTorrentClient(TorrentClient torrentClient) {
+		this.torrentClient = torrentClient;
+	}
 
 }

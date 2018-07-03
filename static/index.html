@@ -16,23 +16,36 @@
 			</br>
 			<input type="submit" value="Download!">
 		</form>
+		</br>
+		<button onclick="reloadStorage()">Reload Storage...</button>
 	</div>
 
-	<div class="DownloadingNow">
-		<p>Downloading Now:</p>
-		<!-- TODO: enable stop/resume -->
-		<ol id="DownloadingNowList">
-		</ol>
+	<div class="DownloadingList">
+		<p>Downloading List:</p>
+		<table id="DownloadingList">
+
+		</table>
 	</div>
 
 	<div class="DownloadedList">
 		<p>Downloaded List:</p>
-		<!-- TODO: enable delete -->
 		<ol id="DownloadedList">
 		</ol>
+
+		<table id="DownloadedList" style="width: 100%">
+
+		</table>
 	</div>
 
 	<script>
+	
+		var host = 'localhost';
+		var port = '8081';
+		var called = false;
+		doGetDownloadingList();
+		doGetDownloadedList();
+		listenForDownloading();
+	
 		// Attach a submit handler to the form
 		$("#downloadForm")
 				.submit(
@@ -55,39 +68,131 @@
 
 							$.ajax({
 								type : "POST",
-								url : 'http://localhost:1402/downloadTorrent',
+								url : 'http://'+ host + ':' + port + '/downloadTorrent',
 								contentType : 'application/json',
 								async : false,
 								data : JSON.stringify(obj),
 								success : function() {
-									alert("Downloading!");
+									doGetDownloadingList();
 								}
 							})
 
 						});
+		
+		function listenForDownloading() {
+			if(!$("#DownloadingList").children().length == 0){
+				doGetDownloadingList();
+			}
+			setTimeout(listenForDownloading, 2000);
+		}
 
-		var interval = 1000;
 		function doGetDownloadingList() {
 			$.ajax({
 				type : 'GET',
-				url : 'http://localhost:1402/downloadingNow',
+				url : 'http://'+ host + ':' + port + '/downloadingList',
 				accept : 'application/json',
 				success : function(data) {
-					$("#DownloadingNowList").empty();
+					$("#DownloadingList").empty();
 					for (var i = 0; i < data.length; i++) {
-						var li = document.createElement("li");
-						li.appendChild(document
-								.createTextNode(data[i].taskName));
-						$("#DownloadingNowList").append(li);
+						var tr = document.createElement("tr");
+						var td1 = document.createElement("td");
+						td1.appendChild(document
+								.createTextNode(data[i].downloadingProgress + ' - ' + data[i].taskName));
+						var td2 = document.createElement("td");
+						var stopAndRemoveButton = document.createElement("button");
+						stopAndRemoveButton.setAttribute("id", "stopAndRemove");
+						stopAndRemoveButton.setAttribute("taskName", data[i].taskName);
+						stopAndRemoveButton.setAttribute("onclick", "stopAndRemove(this);");
+						var stopStr = document.createTextNode("Stop and Remove");
+						stopAndRemoveButton.appendChild(stopStr);
+						td2.appendChild(stopAndRemoveButton);
+						tr.append(td2);
+						tr.append(td1);
+						$("#DownloadingList").append(tr);
 					}
-				},
-				complete : function(data) {
-					// Schedule the next
-					setTimeout(doGetDownloadingList, interval);
+					if(data.length != 0){
+						// setTimeout(doGetDownloadingList, 2000);
+					} 
 				}
 			});
 		}
-		setTimeout(doGetDownloadingList, interval);
+
+		var interval = 1000;
+		function doGetDownloadedList() {
+			$.ajax({
+				type : 'GET',
+				url : 'http://'+ host + ':' + port + '/downloadedList',
+				accept : 'application/json',
+				success : function(data) {
+					$("#DownloadedList").empty();
+					for (var i = 0; i < data.length; i++) {
+						var tr = document.createElement("tr");
+						var td = document.createElement("td");
+						td.appendChild(document.createTextNode(data[i].taskName));
+						var subTable = document.createElement("table");
+						tr.appendChild(td);
+						tr.appendChild(subTable);
+						
+						
+						for(var file in data[i].files){
+							var subTr = document.createElement("tr");
+							
+							var t1 = document.createElement("td");
+							t1.appendChild(document.createTextNode(file));
+							subTr.appendChild(t1);
+							
+							var t2 = document.createElement("td");
+							t2.appendChild(document.createTextNode(data[i].files[file]));
+							subTr.appendChild(t2);
+							
+							var deleteButton = document.createElement("button");
+							deleteButton.setAttribute("id", "delete");
+							deleteButton.setAttribute("filePath", file);
+							deleteButton.setAttribute("taskName", data[i].taskName);
+							deleteButton.setAttribute("onclick", "deleteFile(this);");
+							var delStr = document.createTextNode("Delete");
+							deleteButton.appendChild(delStr);
+							subTr.appendChild(deleteButton);
+							subTable.appendChild(subTr);
+						}
+						
+						
+						tr.appendChild(document.createElement("br"))
+						$("#DownloadedList").append(tr);
+					}
+				}
+			});
+		}
+		
+		function reloadStorage() {
+			$.ajax({
+				type : 'GET',
+				url : 'http://'+ host + ':' + port + '/reloadStorage',
+				success : function(data) {
+					doGetDownloadedList();
+				}
+			});
+		}
+		
+		function deleteFile(el) {
+			$.ajax({
+				type : 'DELETE',
+				url : 'http://'+ host + ':' + port + '/deleteFile?taskName=' + el.getAttribute("taskName")+ '&filePath=' + encodeURIComponent(el.getAttribute("filePath")),
+				success : function(data) {
+					doGetDownloadingList();
+				}
+			});
+		}
+		
+		function stopAndRemove(el) {
+			$.ajax({
+				type : 'DELETE',
+				url : 'http://'+ host + ':' + port + '/stopAndRemove?taskName=' + el.getAttribute("taskName"),
+				success : function(data) {
+					doGetDownloadingList();
+				}
+			});
+		}
 	</script>
 
 </body>

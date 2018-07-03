@@ -3,6 +3,7 @@ package com.rusinov.web;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,16 +32,37 @@ public class RESTController {
 	private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 
 	@Autowired
-	private TorrentClient torrentClient;
-
-	@Autowired
 	private StorageManager storageManager;
+
+	@RequestMapping(value = { "reloadStorage" }, method = RequestMethod.GET)
+	public void reloadStorage() {
+		try {
+			storageManager.loadStorage();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@RequestMapping(value = { "deleteFile" }, method = RequestMethod.DELETE)
 	public void deleteFile(@RequestParam(value = "taskName", required = true) String taskName,
 			@RequestParam(value = "filePath", required = false) String filePath) {
 		try {
 			storageManager.deleteFile(taskName, filePath);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@RequestMapping(value = { "stopAndRemove" }, method = RequestMethod.DELETE)
+	public void stopAndRemove(@RequestParam(value = "taskName", required = true) String taskName) {
+		try {
+			TorrentClient tc = storageManager.getDownloading().get(taskName).getTorrentClient();
+			if (tc != null) {
+				tc.stopDownload();
+			}
+			storageManager.deleteFile(taskName, null);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -95,12 +117,21 @@ public class RESTController {
 
 		try {
 			// download torrent file
-			System.out.println("Downloading torrent Name: " + body.getTaskName());
-			System.out.println("Downloading torrent URL: " + body.getTorrentURL());
-			System.out.println("Downloading torrent Subs: " + body.getSubtitleURL());
+			System.out.println("Downloading torrent Name:" + body.getTaskName() + " URL:" + body.getTorrentURL()
+					+ " Subs: " + body.getSubtitleURL());
 
-			torrentClient.dowload(body.getTaskName(), new URL(body.getTorrentURL()),
-					new File(Application.ROOT_DIR + "/" + body.getTaskName()));
+//			TorrentClient torrentClient = new TorrentClient(body.getTaskName(), new URL(body.getTorrentURL()),
+//					new File(Application.ROOT_DIR + "/" + body.getTaskName()), storageManager);
+//
+//			torrentClient.startDownload();
+
+			// TODO: remove
+			storageManager.addToDownloading("wrapper", new DownloadingInfo(new Date(), "11%",
+					new TorrentClient("wrapper", new URL("http://www.example1.com"),
+							new File("D:\\Develop\\TorrentClient\\testFiles\\wrapper"), storageManager)));
+			storageManager.addToDownloading("wrapper - Copy", new DownloadingInfo(new Date(), "57%",
+					new TorrentClient("wrapper - Copy", new URL("http://www.example1.com"),
+							new File("D:\\Develop\\TorrentClient\\testFiles\\wrapper - Copy"), storageManager)));
 
 			// TODO: download subs
 			// DownloadUtils.downloadFile(file.getInputStream(),
