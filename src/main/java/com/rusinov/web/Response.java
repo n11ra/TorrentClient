@@ -1,12 +1,21 @@
 package com.rusinov.web;
 
-import java.util.List;
+import java.util.Map;
 
 public class Response {
 
+	String date;
 	String taskName;
-	String downloadProgress;
-	List<String> files;
+	String downloadingProgress;
+	Map<String, String> files;
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
 
 	public String getTaskName() {
 		return taskName;
@@ -16,19 +25,19 @@ public class Response {
 		this.taskName = taskName;
 	}
 
-	public String getDownloadProgress() {
-		return downloadProgress;
+	public String getDownloadingProgress() {
+		return downloadingProgress;
 	}
 
-	public void setDownloadProgress(String downloadProgress) {
-		this.downloadProgress = downloadProgress;
+	public void setDownloadingProgress(String downloadingProgress) {
+		this.downloadingProgress = downloadingProgress;
 	}
 
-	public List<String> getFiles() {
+	public Map<String, String> getFiles() {
 		return files;
 	}
 
-	public void setFiles(List<String> files) {
+	public void setFiles(Map<String, String> files) {
 		this.files = files;
 	}
 

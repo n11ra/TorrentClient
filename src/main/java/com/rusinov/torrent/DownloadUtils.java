@@ -19,14 +19,14 @@ public class DownloadUtils {
 
 	public static File downloadFile(URL url, String fileName) throws IOException {
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		File file = new File(Application.DOWNLOAD_DIR + fileName);
+		File file = new File(Application.ROOT_DIR + fileName);
 		file.getParentFile().mkdirs();
 		FileCopyUtils.copy(conn.getInputStream(), new FileOutputStream(file));
 		return file;
 	}
 
 	public static File downloadFile(InputStream in, String fileName) throws IOException {
-		File file = new File(Application.DOWNLOAD_DIR + fileName);
+		File file = new File(Application.ROOT_DIR + fileName);
 		file.getParentFile().mkdirs();
 		FileCopyUtils.copy(in, new FileOutputStream(file));
 		return file;
