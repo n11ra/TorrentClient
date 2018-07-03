@@ -45,7 +45,8 @@ jar {
 }
 
 dependencies {
-	compile("com.github.atomashpolskiy:bt-core:1.7")
+	compile("com.turn:ttorrent-core:1.5")
+	// compile("com.github.atomashpolskiy:bt-core:1.7")
 	compile("javax.validation:validation-api:2.0.1.Final")
     compile("org.springframework.boot:spring-boot-starter-web:2.0.3.RELEASE")   
 }

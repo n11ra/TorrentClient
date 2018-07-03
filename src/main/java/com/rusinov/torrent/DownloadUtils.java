@@ -17,30 +17,37 @@ import com.rusinov.main.Application;
 
 public class DownloadUtils {
 
-	public static File downloadFile(URL url, String fileName) throws IOException {
+	public static File downloadFile(URL url, String fileName, String taskName, String cookie) throws IOException {
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		File file = new File(Application.ROOT_DIR + fileName);
+		if (cookie != null) {
+			conn.setRequestProperty("Cookie", cookie);
+		}
+
+		conn.setRequestProperty("Accept", "application/download");
+		conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+
+		File file = new File(Application.ROOT_DIR + "/" + taskName + "/" + fileName);
 		file.getParentFile().mkdirs();
 		FileCopyUtils.copy(conn.getInputStream(), new FileOutputStream(file));
 		return file;
 	}
 
-	public static File downloadFile(InputStream in, String fileName) throws IOException {
-		File file = new File(Application.ROOT_DIR + fileName);
-		file.getParentFile().mkdirs();
-		FileCopyUtils.copy(in, new FileOutputStream(file));
-		return file;
-	}
-
-	public static File downloadTorrentFile(String torrentPath, String fileName) throws Exception {
-		Map<String, String> queries = splitQuery(new URL(torrentPath));
-		String torrentId = queries.get("id");
-		if (torrentId == null) {
-			throw new Exception("Torrent id not found in link");
-		}
-		String _fileName = fileName + ".torrent";
-		return downloadFile(new URL(Application.ZAMUNDA_DOWNLOAD_PATH + torrentId), _fileName);
-	}
+//	public static File downloadFile(InputStream in, String fileName) throws IOException {
+//		File file = new File(Application.ROOT_DIR + fileName);
+//		file.getParentFile().mkdirs();
+//		FileCopyUtils.copy(in, new FileOutputStream(file));
+//		return file;
+//	}
+//
+//	public static File downloadTorrentFile(String torrentPath, String fileName) throws Exception {
+//		Map<String, String> queries = splitQuery(new URL(torrentPath));
+//		String torrentId = queries.get("id");
+//		if (torrentId == null) {
+//			throw new Exception("Torrent id not found in link");
+//		}
+//		String _fileName = fileName + ".torrent";
+//		return downloadFile(new URL(Application.ZAMUNDA_DOWNLOAD_PATH + torrentId), _fileName);
+//	}
 
 	private static Map<String, String> splitQuery(URL url) {
 		try {

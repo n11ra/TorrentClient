@@ -80,6 +80,10 @@ public class StorageManager {
 				}
 
 				if (!fileToDel.exists()) {
+					if(fileToDel.getParentFile() != null && fileToDel.getParentFile().list().length <= 0) {
+						fileToDel.getParentFile().delete();
+						removeFromDownloaded(taskName);
+					}
 					return;
 				}
 

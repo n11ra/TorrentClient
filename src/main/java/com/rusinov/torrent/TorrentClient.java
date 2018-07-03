@@ -1,55 +1,69 @@
 package com.rusinov.torrent;
 
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 
 import com.rusinov.main.DownloadedInfo;
 import com.rusinov.main.DownloadingInfo;
 import com.rusinov.main.StorageManager;
-
-import bt.Bt;
-import bt.data.Storage;
-import bt.data.file.FileSystemStorage;
-import bt.runtime.BtClient;
+import com.rusinov.main.Utils;
+import com.turn.ttorrent.client.Client;
+import com.turn.ttorrent.client.SharedTorrent;
 
 public class TorrentClient {
-
-	private DecimalFormat df = new DecimalFormat("#.##");
-
+	
 	private String taskName;
-	private URL torrentURL;
+	private File torrent;
 	private File targetStorage;
-	private BtClient client;
 	private StorageManager storageManager;
+	private Client client;
 
-	public TorrentClient(String taskName, URL torrentURL, File targetStorage, StorageManager storageManager) {
+	public TorrentClient(String taskName, File torrent, File targetStorage, StorageManager storageManager) {
 		this.taskName = taskName;
-		this.torrentURL = torrentURL;
+		this.torrent = torrent;
 		this.targetStorage = targetStorage;
 		this.storageManager = storageManager;
 	}
 
-	public void startDownload() {
-		System.out.println("Adding torrent to downloading storage: " + taskName);
+	public void startDownload() throws UnknownHostException, NoSuchAlgorithmException, IOException {
 
+		System.out.println("Adding torrent to downloading storage: " + taskName);
 		DownloadingInfo downloadInfo = new DownloadingInfo(new Date(), "0%", this);
 		storageManager.addToDownloading(taskName, downloadInfo);
 
-		Storage storage = new FileSystemStorage(targetStorage.toPath());
+		Client client = new Client(InetAddress.getLocalHost(), SharedTorrent.fromFile(torrent, targetStorage));
 
-		client = Bt.client().storage(storage).torrent(torrentURL).build();
-		client.startAsync(state -> {
-			// calc progress every second
-			downloadInfo
-					.setDownloadingProgress(df.format(state.getPiecesRemaining() / state.getPiecesTotal() * 100) + "%");
-			// always stop after download
-			if (state.getPiecesRemaining() == 0) {
+//		client.setMaxDownloadRate(50.0);
+//		client.setMaxUploadRate(50.0);
+
+		client.download();
+
+		client.addObserver(new Observer() {
+			@Override
+			public void update(Observable observable, Object data) {
+				Client client = (Client) observable;
+				float progress = client.getTorrent().getCompletion();
+				downloadInfo.setDownloadingProgress(Utils.DF.format(progress) + "%");
+			}
+		});
+
+		// To wait for this process to finish, call:
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				client.waitForCompletion();
 				stopDownload();
 			}
-		}, 1000).join();
+		}).start();
 	}
 
 	public void stopDownload() {
@@ -64,10 +78,6 @@ public class TorrentClient {
 			storageManager.addToDownloaded(taskName,
 					new DownloadedInfo(Arrays.asList(targetStorage.listFiles()), new Date()));
 		}
-	}
-
-	public static void main(String[] args) {
-		// TODO: test it
 	}
 
 }

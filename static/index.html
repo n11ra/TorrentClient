@@ -82,6 +82,7 @@
 		function listenForDownloading() {
 			if(!$("#DownloadingList").children().length == 0){
 				doGetDownloadingList();
+				doGetDownloadedList();
 			}
 			setTimeout(listenForDownloading, 2000);
 		}
@@ -117,7 +118,6 @@
 			});
 		}
 
-		var interval = 1000;
 		function doGetDownloadedList() {
 			$.ajax({
 				type : 'GET',
@@ -179,7 +179,7 @@
 				type : 'DELETE',
 				url : 'http://'+ host + ':' + port + '/deleteFile?taskName=' + el.getAttribute("taskName")+ '&filePath=' + encodeURIComponent(el.getAttribute("filePath")),
 				success : function(data) {
-					doGetDownloadingList();
+					doGetDownloadedList();
 				}
 			});
 		}

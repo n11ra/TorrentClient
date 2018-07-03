@@ -24,6 +24,7 @@ import com.rusinov.main.DownloadedInfo;
 import com.rusinov.main.DownloadingInfo;
 import com.rusinov.main.StorageManager;
 import com.rusinov.main.Utils;
+import com.rusinov.torrent.DownloadUtils;
 import com.rusinov.torrent.TorrentClient;
 
 @RestController
@@ -119,19 +120,14 @@ public class RESTController {
 			// download torrent file
 			System.out.println("Downloading torrent Name:" + body.getTaskName() + " URL:" + body.getTorrentURL()
 					+ " Subs: " + body.getSubtitleURL());
-
-//			TorrentClient torrentClient = new TorrentClient(body.getTaskName(), new URL(body.getTorrentURL()),
+			
+//			File torrent = DownloadUtils.downloadFile(new URL(body.getTorrentURL()), body.getTaskName() + ".torrent", body.getTaskName(), Application.ZAMUNDA_COOKIE);
+//			TorrentClient torrentClient = new TorrentClient(body.getTaskName(), torrent,
 //					new File(Application.ROOT_DIR + "/" + body.getTaskName()), storageManager);
-//
 //			torrentClient.startDownload();
-
-			// TODO: remove
-			storageManager.addToDownloading("wrapper", new DownloadingInfo(new Date(), "11%",
-					new TorrentClient("wrapper", new URL("http://www.example1.com"),
-							new File("D:\\Develop\\TorrentClient\\testFiles\\wrapper"), storageManager)));
-			storageManager.addToDownloading("wrapper - Copy", new DownloadingInfo(new Date(), "57%",
-					new TorrentClient("wrapper - Copy", new URL("http://www.example1.com"),
-							new File("D:\\Develop\\TorrentClient\\testFiles\\wrapper - Copy"), storageManager)));
+			
+			//Content-Disposition: attachment; filename="Rampage.2018.(subs.sab.bz).zip"
+			File subs = DownloadUtils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName() + ".zip", body.getTaskName(), Application.SUB_COOKIE);
 
 			// TODO: download subs
 			// DownloadUtils.downloadFile(file.getInputStream(),
