@@ -26,8 +26,17 @@ public class StorageManager {
 
 	public void loadStorage() throws IOException {
 		downloaded.clear();
+		File rootStorage = new File(Application.ROOT_DIR);
+		if (!rootStorage.exists()) {
+			rootStorage.mkdirs();
+		}
+
 		for (File file : new File(Application.ROOT_DIR).listFiles()) {
 			if (file.isDirectory()) {
+				if (file.listFiles().length == 0) {
+					file.delete();
+					continue;
+				}
 				String taskName = file.getName();
 				List<File> files = new ArrayList<>();
 				Files.find(Paths.get(file.toURI()), Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile())

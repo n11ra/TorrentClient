@@ -3,7 +3,6 @@ package com.rusinov.web;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +23,6 @@ import com.rusinov.main.DownloadedInfo;
 import com.rusinov.main.DownloadingInfo;
 import com.rusinov.main.StorageManager;
 import com.rusinov.main.Utils;
-import com.rusinov.torrent.DownloadUtils;
 import com.rusinov.torrent.TorrentClient;
 
 @RestController
@@ -40,7 +38,6 @@ public class RESTController {
 		try {
 			storageManager.loadStorage();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -51,7 +48,6 @@ public class RESTController {
 		try {
 			storageManager.deleteFile(taskName, filePath);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -65,7 +61,6 @@ public class RESTController {
 			}
 			storageManager.deleteFile(taskName, null);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -82,7 +77,6 @@ public class RESTController {
 				downloadingNowList.add(response);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -105,7 +99,6 @@ public class RESTController {
 				downloadedList.add(response);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -121,19 +114,27 @@ public class RESTController {
 			System.out.println("Downloading torrent Name:" + body.getTaskName() + " URL:" + body.getTorrentURL()
 					+ " Subs: " + body.getSubtitleURL());
 			
-//			File torrent = DownloadUtils.downloadFile(new URL(body.getTorrentURL()), body.getTaskName() + ".torrent", body.getTaskName(), Application.ZAMUNDA_COOKIE);
-//			TorrentClient torrentClient = new TorrentClient(body.getTaskName(), torrent,
-//					new File(Application.ROOT_DIR + "/" + body.getTaskName()), storageManager);
+			File taskDir = new File(Application.ROOT_DIR + "/" + body.getTaskName());
+			if (taskDir.exists()) {
+				return null;
+			}
+			taskDir.mkdirs();
+
+//			File torrent = Utils.downloadFile(new URL(body.getTorrentURL()), body.getTaskName() + ".torrent", body.getTaskName(), Application.ZAMUNDA_COOKIE);
+//			TorrentClient torrentClient = new TorrentClient(body.getTaskName(), torrent, taskDir, storageManager);
 //			torrentClient.startDownload();
 			
-			//Content-Disposition: attachment; filename="Rampage.2018.(subs.sab.bz).zip"
-			File subs = DownloadUtils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName() + ".zip", body.getTaskName(), Application.SUB_COOKIE);
+			File subs = Utils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName(), null);
+			if (subs.getName().endsWith(".zip")) {
+				Utils.unzip(subs, taskDir);
+			} else if (subs.getName().endsWith(".rar")) {
+				Utils.unrar(subs, taskDir);
+			}
 
-			// TODO: download subs
-			// DownloadUtils.downloadFile(file.getInputStream(),
-			// getFileName(request))
+			// .sub .str
+			// .mkv .avi .flv .wmv .mp4
+
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
