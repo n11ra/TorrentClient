@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Resource;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +32,7 @@ public class RESTController {
 
 	private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 
-	@Autowired
+	@Resource
 	private StorageManager storageManager;
 
 	@RequestMapping(value = { "reloadStorage" }, method = RequestMethod.GET)
@@ -43,10 +44,35 @@ public class RESTController {
 		}
 	}
 
+	@RequestMapping(value = { "rootDir" }, method = RequestMethod.GET)
+	public String getRootDir() {
+		try {
+			return Application.getRootDirForWeb();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@RequestMapping(value = { "setRootDir" }, method = RequestMethod.GET)
+	public void setRootDir(@RequestParam(value = "rootDir", required = true) String rootDir) {
+		try {
+			Application.switchRootDir(rootDir);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				storageManager.loadStorage();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	@RequestMapping(value = { "findRenameAndMoveSubtitles" }, method = RequestMethod.GET)
 	public void findRenameAndMoveSubtitles(@RequestParam(value = "taskName", required = true) String taskName) {
 		try {
-			Utils.findRenameAndMoveSubtitles(new File(Application.ROOT_DIR + "/" + taskName));
+			Utils.findRenameAndMoveSubtitles(new File(Application.getRootDir() + "/" + taskName));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -103,6 +129,8 @@ public class RESTController {
 	public ResponseEntity<List<Response>> downloadedList() {
 		List<Response> downloadedList = new LinkedList<>();
 		try {
+			Map<String, DownloadedInfo> z = storageManager.getDownloaded();
+			System.out.println(z);
 			for (Entry<String, DownloadedInfo> e : storageManager.getDownloaded().entrySet()) {
 				Response response = new Response();
 				response.setTaskName(e.getKey());
@@ -130,7 +158,7 @@ public class RESTController {
 			System.out.println("Downloading torrent Name:" + body.getTaskName() + " URL:" + body.getTorrentURL()
 					+ " Subs: " + body.getSubtitleURL());
 
-			File taskDir = new File(Application.ROOT_DIR + "/" + body.getTaskName());
+			File taskDir = new File(Application.getRootDir() + "/" + body.getTaskName());
 			if (!taskDir.exists()) {
 				taskDir.mkdirs();
 			}

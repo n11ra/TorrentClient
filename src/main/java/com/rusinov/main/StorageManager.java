@@ -2,8 +2,6 @@ package com.rusinov.main;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,12 +24,12 @@ public class StorageManager {
 
 	public void loadStorage() throws IOException {
 		downloaded.clear();
-		File rootStorage = new File(Application.ROOT_DIR);
+		File rootStorage = new File(Application.getRootDir());
 		if (!rootStorage.exists()) {
 			rootStorage.mkdirs();
 		}
 
-		for (File file : new File(Application.ROOT_DIR).listFiles()) {
+		for (File file : new File(Application.getRootDir()).listFiles()) {
 			if (file.isDirectory()) {
 				if (file.listFiles().length == 0) {
 					file.delete();
@@ -39,8 +37,7 @@ public class StorageManager {
 				}
 				String taskName = file.getName();
 				List<File> files = new ArrayList<>();
-				Files.find(Paths.get(file.toURI()), Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile())
-						.forEach(f -> files.add(f.toFile()));
+				Utils.getFiles(file, files);
 
 				addToDownloaded(taskName, new DownloadedInfo(files, new Date()));
 			}
@@ -73,18 +70,18 @@ public class StorageManager {
 
 	public void deleteFile(String taskName, String filePath) {
 		if (downloading.containsKey(taskName)) {
-			FileSystemUtils.deleteRecursively(new File(Application.ROOT_DIR + "/" + taskName));
+			FileSystemUtils.deleteRecursively(new File(Application.getRootDir() + "/" + taskName));
 			removeFromDownloading(taskName);
 		}
 		if (downloaded.containsKey(taskName)) {
 			if (filePath == null) {
-				FileSystemUtils.deleteRecursively(new File(Application.ROOT_DIR + "/" + taskName));
+				FileSystemUtils.deleteRecursively(new File(Application.getRootDir() + "/" + taskName));
 				removeFromDownloaded(taskName);
 			} else {
 				File fileToDel = new File(filePath);
 
 				// don't delete anything outside
-				if (!fileToDel.getAbsolutePath().startsWith(Application.ROOT_DIR)) {
+				if (!fileToDel.getAbsolutePath().startsWith(Application.getRootDir())) {
 					return;
 				}
 

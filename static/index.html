@@ -7,6 +7,18 @@
 </head>
 <body id="page1">
 
+	<div class="RootDir">
+		<p>Root Directory:</p>
+		<label class="container">
+		  <input type="radio" name="radio" id="OSMC" value="OSMC">OSMC
+		</label>
+		<label class="container">
+		  <input type="radio" name="radio" id="FLASH" value="FLASH">FLASH
+		</label>
+	</div>
+	
+	</br>
+
 	<div class="Inputs">
 		<form action="/" id="downloadForm">
 			<input type="text" name="taskName" placeholder="Task Name">
@@ -36,12 +48,44 @@
 
 	<script>
 	
+		$(document).ready(function() {
+		    $('input[type=radio]').change(function() {
+		        if (this.value == 'OSMC') {
+		        	doSetRootDir('OSMC');
+		        }
+		        else if (this.value == 'FLASH') {
+		        	doSetRootDir('FLASH');
+		        }
+		    });
+		});
+	
 		var host = 'localhost';
 		var port = '8081';
 		var called = false;
+		doGetRootDir();
 		doGetDownloadingList();
 		doGetDownloadedList();
 		listenForDownloading();
+		
+		function doGetRootDir() {
+			$.ajax({
+				type : 'GET',
+				url : 'http://'+ host + ':' + port + '/rootDir',
+				success : function(data) {
+					$("#"+data).prop("checked", true);
+				}
+			});
+		}
+		
+		function doSetRootDir(el) {
+			$.ajax({
+				type : 'GET',
+				url : 'http://'+ host + ':' + port + '/setRootDir?rootDir=' + el,
+				success : function(data) {
+					doGetDownloadedList();
+				}
+			});
+		}
 	
 		// Attach a submit handler to the form
 		$("#downloadForm")

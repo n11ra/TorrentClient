@@ -30,8 +30,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.httpBasic().authenticationEntryPoint(authenticationEntryPoint);
-		// .and().authorizeRequests().antMatchers("/NO_SECURITY").permitAll().anyRequest().authenticated().
+		http.authorizeRequests().anyRequest().authenticated().and().httpBasic()
+				.authenticationEntryPoint(authenticationEntryPoint).and().csrf().disable();
+		// .antMatchers("not_secured").permitAll()
+		//
 
 		http.addFilterAfter(new CustomFilter(), BasicAuthenticationFilter.class);
 	}

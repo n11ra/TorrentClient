@@ -77,6 +77,17 @@ public class Utils {
 		subs.renameTo(new File(movie.getParentFile().getAbsolutePath() + "/" + movieName + subExtention));
 	}
 
+	public static void getFiles(File dir, List<File> files) {
+		File[] fList = dir.listFiles();
+		for (File file : fList) {
+			if (file.isFile()) {
+				files.add(file);
+			} else if (file.isDirectory()) {
+				getFiles(file, files);
+			}
+		}
+	}
+
 	private static void getVideoFiles(File dir, List<File> files) {
 		File[] fList = dir.listFiles();
 		for (File file : fList) {
@@ -114,7 +125,7 @@ public class Utils {
 		String contentDisposition = conn.getHeaderField("Content-Disposition");
 		String fileName = parseContentDisposition(contentDisposition);
 
-		File file = new File(Application.ROOT_DIR + "/" + taskName + "/" + fileName);
+		File file = new File(Application.getRootDir() + "/" + taskName + "/" + fileName);
 		file.createNewFile();
 		FileCopyUtils.copy(conn.getInputStream(), new FileOutputStream(file));
 		return file;
