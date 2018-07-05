@@ -47,6 +47,9 @@ jar {
 dependencies {
 	compile("com.turn:ttorrent-core:1.5")
 	compile("com.github.junrar:junrar:2.0.0")
+	
+	compile("com.github.axet:java-unrar:1.7.0-3")
+	
 	compile("javax.validation:validation-api:2.0.1.Final")
 	compile("org.springframework.security:spring-security-web:4.2.2.RELEASE")
 	compile("org.springframework.security:spring-security-config:4.2.2.RELEASE")

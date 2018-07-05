@@ -10,12 +10,17 @@ public class Application {
 
 	public static final String ROOT_OSMC = "OSMC";
 	public static final String ROOT_FLASH = "FLASH";
+	
+	// https://subsunacs.net/subtitles/Inside_No_9_01x05-127611/
 
-	private static final String _ROOT_OSMC = "/media/osmc/Movies";
-	private static final String _ROOT_FLASH = "/home/FLASH/Movies";
-
+//	private static final String _ROOT_OSMC = "/media/osmc/Movies";
+//	private static final String _ROOT_FLASH = "/home/FLASH/Movies";
+	
 //	private static final String _ROOT_OSMC = "D:\\Develop\\TorrentClient\\OSMC";
 //	private static final String _ROOT_FLASH = "D:\\Develop\\TorrentClient\\FLASH";
+
+	private static final String _ROOT_OSMC = "D:\\eclipse-workspace\\TorrentClient\\OSMC";
+	private static final String _ROOT_FLASH = "D:\\eclipse-workspace\\TorrentClient\\FLASH";
 
 	public static final String ZAMUNDA_COOKIE = "PHPSESSID=lgkd3qhbc3p6evkr9mjqebbml2; __utmc=100172053; "
 			+ "__utmz=100172053.1521606519.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); swidth=1536; "

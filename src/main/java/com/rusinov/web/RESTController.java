@@ -164,11 +164,15 @@ public class RESTController {
 			}
 
 			// download and unzip/unrar subs
-			File subs = Utils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName(), null);
-			if (subs.getName().endsWith(".zip")) {
-				Utils.unzip(subs, taskDir);
-			} else if (subs.getName().endsWith(".rar")) {
-				Utils.unrar(subs, taskDir);
+			try {
+				File subs = Utils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName(), null);
+				if (subs.getName().endsWith(".zip")) {
+					Utils.unzip(subs, taskDir);
+				} else if (subs.getName().endsWith(".rar")) {
+					Utils.unrar(subs, taskDir);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 
 			// download torrent file and start downloading

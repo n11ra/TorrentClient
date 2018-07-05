@@ -17,6 +17,10 @@ import org.springframework.util.FileCopyUtils;
 import com.github.junrar.Junrar;
 import com.github.junrar.exception.RarException;
 
+import de.innosystec.unrar.Archive;
+import de.innosystec.unrar.NativeStorage;
+import de.innosystec.unrar.rarfile.FileHeader;
+
 public class Utils {
 
 	public static final DecimalFormat DF = new DecimalFormat("#.##");
@@ -61,14 +65,14 @@ public class Utils {
 		if (videoFiles.size() == 0) {
 			return;
 		}
-		
+
 		File movie = null;
 		for (File video : videoFiles) {
 			if (movie == null || movie.length() < video.length()) {
 				movie = video;
 			}
 		}
-		
+
 		File subs = subtitleFiles.get(0);
 
 		String movieName = movie.getName().substring(0, movie.getName().lastIndexOf('.'));
@@ -115,15 +119,20 @@ public class Utils {
 
 	public static File downloadFile(URL url, String taskName, String cookie) throws IOException {
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		if (cookie != null) {
-			conn.setRequestProperty("Cookie", cookie);
-		}
+		String fileName = "unknown";
 
 		conn.setRequestProperty("Referer", url.toString());
 		conn.setRequestProperty("Connection", "close");
 
-		String contentDisposition = conn.getHeaderField("Content-Disposition");
-		String fileName = parseContentDisposition(contentDisposition);
+		if (cookie != null) {
+			conn.setRequestProperty("Cookie", cookie);
+			fileName = url.toString().substring(url.toString().lastIndexOf('/'), url.toString().length());
+		} else {
+			String contentDisposition = conn.getHeaderField("Content-Disposition");
+			if (contentDisposition != null) {
+				fileName = parseContentDisposition(contentDisposition);
+			}
+		}
 
 		File file = new File(Application.getRootDir() + "/" + taskName + "/" + fileName);
 		file.createNewFile();
@@ -161,8 +170,23 @@ public class Utils {
 		zis.close();
 	}
 
-	public static void unrar(File rar, File targetDir) throws RarException, IOException {
-		Junrar.extract(rar, targetDir);
+	public static void unrar(File rar, File targetDir)
+			throws RarException, IOException, de.innosystec.unrar.exception.RarException {
+//		Junrar.extract(rar, targetDir);
+
+		Archive archive = null;
+		try {
+			archive = new Archive(new NativeStorage(rar));
+			List<FileHeader> list = archive.getFileHeaders();
+			for (FileHeader h : list) {
+				archive.extractFile(h, new FileOutputStream(targetDir));
+			}
+		} finally {
+			if (archive != null) {
+				archive.close();
+			}
+		}
+
 	}
 
 }
