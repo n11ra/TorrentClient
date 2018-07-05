@@ -29,9 +29,6 @@
 
 	<div class="DownloadedList">
 		<p>Downloaded List:</p>
-		<ol id="DownloadedList">
-		</ol>
-
 		<table id="DownloadedList" style="width: 100%">
 
 		</table>
@@ -74,6 +71,7 @@
 								data : JSON.stringify(obj),
 								success : function() {
 									doGetDownloadingList();
+									doGetDownloadedList();
 								}
 							})
 
@@ -128,6 +126,14 @@
 					for (var i = 0; i < data.length; i++) {
 						var tr = document.createElement("tr");
 						var td = document.createElement("td");
+						
+						var handleSubs = document.createElement("button");
+						handleSubs.setAttribute("taskName", data[i].taskName);
+						handleSubs.setAttribute("onclick", "handleSubs(this);");
+						var subs = document.createTextNode("ForceHandleSubs");
+						handleSubs.appendChild(subs);						
+						
+						td.appendChild(handleSubs);
 						td.appendChild(document.createTextNode(data[i].taskName));
 						var subTable = document.createElement("table");
 						tr.appendChild(td);
@@ -178,6 +184,16 @@
 			$.ajax({
 				type : 'DELETE',
 				url : 'http://'+ host + ':' + port + '/deleteFile?taskName=' + el.getAttribute("taskName")+ '&filePath=' + encodeURIComponent(el.getAttribute("filePath")),
+				success : function(data) {
+					doGetDownloadedList();
+				}
+			});
+		}
+		
+		function handleSubs(el) {
+			$.ajax({
+				type : 'GET',
+				url : 'http://'+ host + ':' + port + '/findRenameAndMoveSubtitles?taskName=' + el.getAttribute("taskName"),
 				success : function(data) {
 					doGetDownloadedList();
 				}

@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import(ApplicationConfig.class)
+@Import({ ApplicationConfig.class, SecurityConfiguration.class })
 public class Application {
 
 	public static final String ROOT_DIR = "D:\\Develop\\TorrentClient\\storage";

@@ -1,6 +1,7 @@
 package com.rusinov.web;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -39,6 +40,21 @@ public class RESTController {
 			storageManager.loadStorage();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	@RequestMapping(value = { "findRenameAndMoveSubtitles" }, method = RequestMethod.GET)
+	public void findRenameAndMoveSubtitles(@RequestParam(value = "taskName", required = true) String taskName) {
+		try {
+			Utils.findRenameAndMoveSubtitles(new File(Application.ROOT_DIR + "/" + taskName));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				storageManager.loadStorage();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -113,17 +129,13 @@ public class RESTController {
 			// download torrent file
 			System.out.println("Downloading torrent Name:" + body.getTaskName() + " URL:" + body.getTorrentURL()
 					+ " Subs: " + body.getSubtitleURL());
-			
-			File taskDir = new File(Application.ROOT_DIR + "/" + body.getTaskName());
-			if (taskDir.exists()) {
-				return null;
-			}
-			taskDir.mkdirs();
 
-//			File torrent = Utils.downloadFile(new URL(body.getTorrentURL()), body.getTaskName() + ".torrent", body.getTaskName(), Application.ZAMUNDA_COOKIE);
-//			TorrentClient torrentClient = new TorrentClient(body.getTaskName(), torrent, taskDir, storageManager);
-//			torrentClient.startDownload();
-			
+			File taskDir = new File(Application.ROOT_DIR + "/" + body.getTaskName());
+			if (!taskDir.exists()) {
+				taskDir.mkdirs();
+			}
+
+			// download and unzip/unrar subs
 			File subs = Utils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName(), null);
 			if (subs.getName().endsWith(".zip")) {
 				Utils.unzip(subs, taskDir);
@@ -131,11 +143,23 @@ public class RESTController {
 				Utils.unrar(subs, taskDir);
 			}
 
-			// .sub .str
-			// .mkv .avi .flv .wmv .mp4
+			// download torrent file and start downloading
+			if (body.getTorrentURL().trim().length() == 0) {
+				return null;
+			}
+			File torrent = Utils.downloadFile(new URL(body.getTorrentURL()), body.getTaskName(),
+					Application.ZAMUNDA_COOKIE);
+			TorrentClient torrentClient = new TorrentClient(body.getTaskName(), torrent, taskDir, storageManager);
+			torrentClient.startDownload();
 
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				storageManager.loadStorage();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return new ResponseEntity<Response>(response, HttpStatus.OK);

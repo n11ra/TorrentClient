@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Observable;
@@ -25,6 +24,7 @@ public class TorrentClient {
 	private File targetStorage;
 	private StorageManager storageManager;
 	private Client client;
+	private boolean downloaded = false;
 
 	public TorrentClient(String taskName, File torrent, File targetStorage, StorageManager storageManager) {
 		this.taskName = taskName;
@@ -34,6 +34,9 @@ public class TorrentClient {
 	}
 
 	public void startDownload() throws UnknownHostException, NoSuchAlgorithmException, IOException {
+		if (downloaded) {
+			return;
+		}
 
 		System.out.println("Adding torrent to downloading storage: " + taskName);
 		DownloadingInfo downloadInfo = new DownloadingInfo(new Date(), "0%", this);
@@ -62,11 +65,13 @@ public class TorrentClient {
 			public void run() {
 				client.waitForCompletion();
 				stopDownload();
+				Utils.findRenameAndMoveSubtitles(targetStorage);
 			}
 		}).start();
 	}
 
 	public void stopDownload() {
+		downloaded = true;
 		if (client != null) {
 			client.stop();
 		}
