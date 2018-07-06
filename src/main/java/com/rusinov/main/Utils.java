@@ -1,8 +1,10 @@
 package com.rusinov.main;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -119,7 +121,10 @@ public class Utils {
 
 		if (cookie != null) {
 			conn.setRequestProperty("Cookie", cookie);
-			fileName = url.toString().substring(url.toString().lastIndexOf('/'), url.toString().length());
+			fileName = url.toString().substring(url.toString().lastIndexOf('/') + 1, url.toString().length());
+			if (!fileName.endsWith(".torrent")) {
+				return null;
+			}
 		} else {
 			String contentDisposition = conn.getHeaderField("Content-Disposition");
 			if (contentDisposition != null) {
@@ -131,6 +136,39 @@ public class Utils {
 		file.createNewFile();
 		FileCopyUtils.copy(conn.getInputStream(), new FileOutputStream(file));
 		return file;
+	}
+
+	public static File downloadZamundaTorrent(URL url, String taskName, String cookie) throws IOException {
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		String fileName = "torrent.html";
+
+		conn.setRequestProperty("Referer", url.toString());
+		conn.setRequestProperty("Connection", "close");
+
+		if (cookie != null) {
+			conn.setRequestProperty("Cookie", cookie);
+		}
+
+		File file = new File(Application.getRootDir() + "/" + taskName + "/" + fileName);
+		file.createNewFile();
+		FileCopyUtils.copy(conn.getInputStream(), new FileOutputStream(file));
+
+		String torrentUrl = null;
+		String urlStr = "url=";
+		String end = "\">";
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				if (line.contains(".torrent")) {
+					if (torrentUrl == null) {
+						torrentUrl = line.substring(line.indexOf(urlStr) + urlStr.length(), line.lastIndexOf(end));
+						break;
+					}
+				}
+			}
+		}
+
+		return downloadFile(new URL("http://zamunda.net/" + torrentUrl), taskName, cookie);
 	}
 
 	private static String parseContentDisposition(String contentDisposition) {

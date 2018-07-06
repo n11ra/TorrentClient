@@ -163,8 +163,10 @@ public class RESTController {
 
 			// download and unzip/unrar subs
 			try {
-				File subs = Utils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName(), null);
-				Utils.unarchive(subs);
+				if(body.getSubtitleURL().trim().length() != 0) {
+					File subs = Utils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName(), null);
+					Utils.unarchive(subs);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -173,10 +175,12 @@ public class RESTController {
 			if (body.getTorrentURL().trim().length() == 0) {
 				return null;
 			}
-			File torrent = Utils.downloadFile(new URL(body.getTorrentURL()), body.getTaskName(),
+			File torrent = Utils.downloadZamundaTorrent(new URL(body.getTorrentURL()), body.getTaskName(),
 					Application.ZAMUNDA_COOKIE);
-			TorrentClient torrentClient = new TorrentClient(body.getTaskName(), torrent, taskDir, storageManager);
-			torrentClient.startDownload();
+			if(torrent != null) {
+				TorrentClient torrentClient = new TorrentClient(body.getTaskName(), torrent, taskDir, storageManager);
+				torrentClient.startDownload();
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
