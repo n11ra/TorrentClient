@@ -59,7 +59,8 @@
 		    });
 		});
 	
-		var host = 'localhost';
+		var host1 = 'localhost';
+		var host = '192.168.0.103';
 		var port = '8081';
 		var called = false;
 		doGetRootDir();
@@ -250,6 +251,7 @@
 				url : 'http://'+ host + ':' + port + '/stopAndRemove?taskName=' + el.getAttribute("taskName"),
 				success : function(data) {
 					doGetDownloadingList();
+					doGetDownloadedList();
 				}
 			});
 		}

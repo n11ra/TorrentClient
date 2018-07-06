@@ -129,8 +129,6 @@ public class RESTController {
 	public ResponseEntity<List<Response>> downloadedList() {
 		List<Response> downloadedList = new LinkedList<>();
 		try {
-			Map<String, DownloadedInfo> z = storageManager.getDownloaded();
-			System.out.println(z);
 			for (Entry<String, DownloadedInfo> e : storageManager.getDownloaded().entrySet()) {
 				Response response = new Response();
 				response.setTaskName(e.getKey());
@@ -166,11 +164,7 @@ public class RESTController {
 			// download and unzip/unrar subs
 			try {
 				File subs = Utils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName(), null);
-				if (subs.getName().endsWith(".zip")) {
-					Utils.unzip(subs, taskDir);
-				} else if (subs.getName().endsWith(".rar")) {
-					Utils.unrar(subs, taskDir);
-				}
+				Utils.unarchive(subs);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -42,7 +42,7 @@ public class TorrentClient {
 		DownloadingInfo downloadInfo = new DownloadingInfo(new Date(), "0%", this);
 		storageManager.addToDownloading(taskName, downloadInfo);
 
-		Client client = new Client(InetAddress.getLocalHost(), SharedTorrent.fromFile(torrent, targetStorage));
+		client = new Client(InetAddress.getLocalHost(), SharedTorrent.fromFile(torrent, targetStorage));
 
 //		client.setMaxDownloadRate(50.0);
 //		client.setMaxUploadRate(50.0);

@@ -14,13 +14,6 @@ import java.util.zip.ZipInputStream;
 
 import org.springframework.util.FileCopyUtils;
 
-import com.github.junrar.Junrar;
-import com.github.junrar.exception.RarException;
-
-import de.innosystec.unrar.Archive;
-import de.innosystec.unrar.NativeStorage;
-import de.innosystec.unrar.rarfile.FileHeader;
-
 public class Utils {
 
 	public static final DecimalFormat DF = new DecimalFormat("#.##");
@@ -151,6 +144,16 @@ public class Utils {
 		return fileName;
 	}
 
+	public static void unarchive(File archive) throws IOException {
+		if (archive.getName().endsWith(".zip")) {
+//			Runtime.getRuntime().exec("unzip " + archive.getAbsolutePath() + " -d " + archive.getParent());
+			new java.lang.ProcessBuilder("unzip", archive.getAbsolutePath(), "-d", archive.getParent()).start();
+		} else if (archive.getName().endsWith(".rar")) {
+//			Runtime.getRuntime().exec("unrar e " + archive.getAbsolutePath() + " " + archive.getParent());
+			new java.lang.ProcessBuilder("unrar", "e", archive.getAbsolutePath(), archive.getParent()).start();
+		}
+	}
+
 	public static void unzip(File zip, File targetDir) throws IOException {
 		byte[] buffer = new byte[1024];
 		ZipInputStream zis = new ZipInputStream(new FileInputStream(zip));
@@ -168,25 +171,6 @@ public class Utils {
 		}
 		zis.closeEntry();
 		zis.close();
-	}
-
-	public static void unrar(File rar, File targetDir)
-			throws RarException, IOException, de.innosystec.unrar.exception.RarException {
-//		Junrar.extract(rar, targetDir);
-
-		Archive archive = null;
-		try {
-			archive = new Archive(new NativeStorage(rar));
-			List<FileHeader> list = archive.getFileHeaders();
-			for (FileHeader h : list) {
-				archive.extractFile(h, new FileOutputStream(targetDir));
-			}
-		} finally {
-			if (archive != null) {
-				archive.close();
-			}
-		}
-
 	}
 
 }
