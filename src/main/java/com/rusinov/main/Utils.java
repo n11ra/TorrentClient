@@ -195,8 +195,8 @@ public class Utils {
 		}
 	}
 	
-	public static void startTorrentDownload(File torrent) throws IOException {
-//		new java.lang.ProcessBuilder("unzip", archive.getAbsolutePath(), "-d", archive.getParent()).start();
+	public static void startTorrentDownload(String taskName, File torrent) throws IOException {
+		new java.lang.ProcessBuilder("transmission-remote", "-a", torrent.getAbsolutePath(), "-w", Application.getRootDir() + "/" + taskName).start();
 	}
 
 	public static void unzip(File zip, File targetDir) throws IOException {

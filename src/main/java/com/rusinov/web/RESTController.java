@@ -142,7 +142,10 @@ public class RESTController {
 				return null;
 			}
 			// download torrent file
-			Utils.downloadZamundaTorrent(new URL(body.getTorrentURL()), body.getTaskName(), Application.ZAMUNDA_COOKIE);
+			File torrent = Utils.downloadZamundaTorrent(new URL(body.getTorrentURL()), body.getTaskName(), Application.ZAMUNDA_COOKIE);
+			if(torrent != null && torrent.getAbsolutePath().endsWith("torrent")) {
+				Utils.startTorrentDownload(body.getTaskName(), torrent);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
