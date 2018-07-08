@@ -22,10 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rusinov.main.Application;
 import com.rusinov.main.DownloadedInfo;
-import com.rusinov.main.DownloadingInfo;
 import com.rusinov.main.StorageManager;
 import com.rusinov.main.Utils;
-import com.rusinov.torrent.TorrentClient;
 
 @RestController
 public class RESTController {
@@ -94,37 +92,6 @@ public class RESTController {
 		}
 	}
 
-	@RequestMapping(value = { "stopAndRemove" }, method = RequestMethod.DELETE)
-	public void stopAndRemove(@RequestParam(value = "taskName", required = true) String taskName) {
-		try {
-			TorrentClient tc = storageManager.getDownloading().get(taskName).getTorrentClient();
-			if (tc != null) {
-				tc.stopDownload();
-			}
-			storageManager.deleteFile(taskName, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@RequestMapping(value = { "downloadingList" }, method = RequestMethod.GET)
-	public ResponseEntity<List<Response>> downloadingList() {
-		List<Response> downloadingNowList = new LinkedList<>();
-		try {
-			for (Entry<String, DownloadingInfo> e : storageManager.getDownloading().entrySet()) {
-				Response response = new Response();
-				response.setTaskName(e.getKey());
-				response.setDate(DATE_FORMATTER.format(e.getValue().getDate()));
-				response.setDownloadingProgress(e.getValue().getDownloadingProgress());
-				downloadingNowList.add(response);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return new ResponseEntity<List<Response>>(downloadingNowList, HttpStatus.OK);
-	}
-
 	@RequestMapping(value = { "downloadedList" }, method = RequestMethod.GET)
 	public ResponseEntity<List<Response>> downloadedList() {
 		List<Response> downloadedList = new LinkedList<>();
@@ -163,7 +130,7 @@ public class RESTController {
 
 			// download and unzip/unrar subs
 			try {
-				if(body.getSubtitleURL().trim().length() != 0) {
+				if (body.getSubtitleURL().trim().length() != 0) {
 					File subs = Utils.downloadFile(new URL(body.getSubtitleURL()), body.getTaskName(), null);
 					Utils.unarchive(subs);
 				}
@@ -171,17 +138,11 @@ public class RESTController {
 				e.printStackTrace();
 			}
 
-			// download torrent file and start downloading
 			if (body.getTorrentURL().trim().length() == 0) {
 				return null;
 			}
-			File torrent = Utils.downloadZamundaTorrent(new URL(body.getTorrentURL()), body.getTaskName(),
-					Application.ZAMUNDA_COOKIE);
-			if(torrent != null) {
-				TorrentClient torrentClient = new TorrentClient(body.getTaskName(), torrent, taskDir, storageManager);
-				torrentClient.startDownload();
-			}
-
+			// download torrent file
+			Utils.downloadZamundaTorrent(new URL(body.getTorrentURL()), body.getTaskName(), Application.ZAMUNDA_COOKIE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

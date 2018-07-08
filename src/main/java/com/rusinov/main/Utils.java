@@ -82,6 +82,9 @@ public class Utils {
 			if (file.isFile()) {
 				files.add(file);
 			} else if (file.isDirectory()) {
+				if(file.listFiles().length == 0) {
+					file.delete();
+				}
 				getFiles(file, files);
 			}
 		}
@@ -190,6 +193,10 @@ public class Utils {
 //			Runtime.getRuntime().exec("unrar e " + archive.getAbsolutePath() + " " + archive.getParent());
 			new java.lang.ProcessBuilder("unrar", "e", archive.getAbsolutePath(), archive.getParent()).start();
 		}
+	}
+	
+	public static void startTorrentDownload(File torrent) throws IOException {
+//		new java.lang.ProcessBuilder("unzip", archive.getAbsolutePath(), "-d", archive.getParent()).start();
 	}
 
 	public static void unzip(File zip, File targetDir) throws IOException {

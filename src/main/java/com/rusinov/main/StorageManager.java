@@ -14,7 +14,6 @@ import org.springframework.util.FileSystemUtils;
 @Component
 public class StorageManager {
 
-	Map<String, DownloadingInfo> downloading = new ConcurrentHashMap<>();
 	Map<String, DownloadedInfo> downloaded = new ConcurrentHashMap<>();
 
 	public StorageManager() throws IOException {
@@ -48,20 +47,8 @@ public class StorageManager {
 		downloaded.put(key, object);
 	}
 
-	public void addToDownloading(String key, DownloadingInfo object) {
-		downloading.put(key, object);
-	}
-
-	public void removeFromDownloading(String key) {
-		downloading.remove(key);
-	}
-
 	public void removeFromDownloaded(String key) {
-		downloaded.remove(key);
-	}
-
-	public Map<String, DownloadingInfo> getDownloading() {
-		return downloading;
+		
 	}
 
 	public Map<String, DownloadedInfo> getDownloaded() {
@@ -69,14 +56,10 @@ public class StorageManager {
 	}
 
 	public void deleteFile(String taskName, String filePath) {
-		if (downloading.containsKey(taskName)) {
-			FileSystemUtils.deleteRecursively(new File(Application.getRootDir() + "/" + taskName));
-			removeFromDownloading(taskName);
-		}
 		if (downloaded.containsKey(taskName)) {
 			if (filePath == null) {
 				FileSystemUtils.deleteRecursively(new File(Application.getRootDir() + "/" + taskName));
-				removeFromDownloaded(taskName);
+				downloaded.remove(taskName);
 			} else {
 				File fileToDel = new File(filePath);
 

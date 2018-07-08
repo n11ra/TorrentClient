@@ -4,8 +4,21 @@
 <title>TorrentDownloadManager</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
 </head>
 <body id="page1">
+
+<!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+   <!--  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>-->
+  <!--  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>-->
 
 	<div class="RootDir">
 		<p>Root Directory:</p>
@@ -32,22 +45,14 @@
 		<button onclick="reloadStorage()">Reload Storage...</button>
 	</div>
 
-	<div class="DownloadingList">
-		<p>Downloading List:</p>
-		<table id="DownloadingList">
-
-		</table>
-	</div>
-
 	<div class="DownloadedList">
-		<p>Downloaded List:</p>
+		<p>Files:</p>
 		<table id="DownloadedList" style="width: 100%">
 
 		</table>
 	</div>
 
 	<script>
-	
 		$(document).ready(function() {
 		    $('input[type=radio]').change(function() {
 		        if (this.value == 'OSMC') {
@@ -59,14 +64,12 @@
 		    });
 		});
 	
-		var host1 = 'localhost';
-		var host = '192.168.0.103';
+		var host = 'localhost';
+		var host1 = '192.168.0.103';
 		var port = '8081';
 		var called = false;
 		doGetRootDir();
-		doGetDownloadingList();
 		doGetDownloadedList();
-		listenForDownloading();
 		
 		function doGetRootDir() {
 			$.ajax({
@@ -115,52 +118,12 @@
 								async : false,
 								data : JSON.stringify(obj),
 								success : function() {
-									doGetDownloadingList();
 									doGetDownloadedList();
 								}
 							})
 
 						});
 		
-		function listenForDownloading() {
-			if(!$("#DownloadingList").children().length == 0){
-				doGetDownloadingList();
-				doGetDownloadedList();
-			}
-			setTimeout(listenForDownloading, 2000);
-		}
-
-		function doGetDownloadingList() {
-			$.ajax({
-				type : 'GET',
-				url : 'http://'+ host + ':' + port + '/downloadingList',
-				accept : 'application/json',
-				success : function(data) {
-					$("#DownloadingList").empty();
-					for (var i = 0; i < data.length; i++) {
-						var tr = document.createElement("tr");
-						var td1 = document.createElement("td");
-						td1.appendChild(document
-								.createTextNode(data[i].downloadingProgress + ' - ' + data[i].taskName));
-						var td2 = document.createElement("td");
-						var stopAndRemoveButton = document.createElement("button");
-						stopAndRemoveButton.setAttribute("id", "stopAndRemove");
-						stopAndRemoveButton.setAttribute("taskName", data[i].taskName);
-						stopAndRemoveButton.setAttribute("onclick", "stopAndRemove(this);");
-						var stopStr = document.createTextNode("Stop and Remove");
-						stopAndRemoveButton.appendChild(stopStr);
-						td2.appendChild(stopAndRemoveButton);
-						tr.append(td2);
-						tr.append(td1);
-						$("#DownloadingList").append(tr);
-					}
-					if(data.length != 0){
-						// setTimeout(doGetDownloadingList, 2000);
-					} 
-				}
-			});
-		}
-
 		function doGetDownloadedList() {
 			$.ajax({
 				type : 'GET',
@@ -240,17 +203,6 @@
 				type : 'GET',
 				url : 'http://'+ host + ':' + port + '/findRenameAndMoveSubtitles?taskName=' + el.getAttribute("taskName"),
 				success : function(data) {
-					doGetDownloadedList();
-				}
-			});
-		}
-		
-		function stopAndRemove(el) {
-			$.ajax({
-				type : 'DELETE',
-				url : 'http://'+ host + ':' + port + '/stopAndRemove?taskName=' + el.getAttribute("taskName"),
-				success : function(data) {
-					doGetDownloadingList();
 					doGetDownloadedList();
 				}
 			});
