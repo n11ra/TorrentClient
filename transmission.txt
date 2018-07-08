@@ -3,3 +3,5 @@ tranmission-remote -a <torrent_file> -w <download_dir>
 
 TODO: rastart transmission - I have granded permissions to /home/osmc - try 
 transmission-remote -a rampage.torrent -w /home/osmc/Movies/Rampage
+
+sudo service transmission-daemon reload
