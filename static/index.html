@@ -42,12 +42,13 @@
 			<input type="submit" value="Download!">
 		</form>
 		</br>
-		<button onclick="reloadStorage()">Reload Storage...</button>
-		</br>
-		<a href="https://localhost:9091">Transmission Client</a>
+		<button onclick="reloadStorage()">Reload Storage...</button><form style="display: inline" action="" method="get" id="transmissionForm">
+		  <button>Transmission Client</button>
+		</form>
 	</div>
 
 	<div class="DownloadedList">
+		</br>
 		<p>Files:</p>
 		<table id="DownloadedList" style="width: 100%">
 
@@ -55,6 +56,13 @@
 	</div>
 
 	<script>
+	
+		var host = 'localhost';
+		var host1 = '192.168.0.103';
+		var port = '8081';
+		var transmissionPort = '9091';
+		var called = false;
+		
 		$(document).ready(function() {
 		    $('input[type=radio]').change(function() {
 		        if (this.value == 'OSMC') {
@@ -64,12 +72,10 @@
 		        	doSetRootDir('FLASH');
 		        }
 		    });
+		    
+		    $('#transmissionForm').attr('action', 'http://'+ host+':'+transmissionPort);
 		});
-	
-		var host = 'localhost';
-		var host1 = '192.168.0.103';
-		var port = '8081';
-		var called = false;
+		
 		doGetRootDir();
 		doGetDownloadedList();
 		

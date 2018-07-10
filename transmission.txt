@@ -1,7 +1,21 @@
-tranmission-remote -a <torrent_file> -w <download_dir>
+#boot settings for transmission
+/etc/transmission-daemon/settings.json
 
-
-TODO: rastart transmission - I have granded permissions to /home/osmc - try 
-transmission-remote -a rampage.torrent -w /home/osmc/Movies/Rampage
-
+#reload transmission after settings change
 sudo service transmission-daemon reload
+
+#download torrent
+transmission-remote -a <torrent_file> -w <destination_dir>
+
+
+#start java torrent manager at boot
+sudo nano /lib/systemd/system/torrent.service
+sudo systemctl daemon-reload
+sudo systemctl enable test.service
+sudo systemctl start test.service
+
+#view boot up log
+journalctl -b
+
+#running script and redirecting output
+nohup <script> &
