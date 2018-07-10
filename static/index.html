@@ -28,6 +28,7 @@
 		<label class="container">
 		  <input type="radio" name="radio" id="FLASH" value="FLASH">FLASH
 		</label>
+		<p>Free Space:</p><p id="freeSpace"></p>
 	</div>
 	
 	</br>
@@ -57,11 +58,10 @@
 
 	<script>
 	
-		var host = 'localhost';
-		var host1 = '192.168.0.103';
+		var host1 = 'localhost';
+		var host = '192.168.0.103';
 		var port = '8081';
 		var transmissionPort = '9091';
-		var called = false;
 		
 		$(document).ready(function() {
 		    $('input[type=radio]').change(function() {
@@ -85,6 +85,7 @@
 				url : 'http://'+ host + ':' + port + '/rootDir',
 				success : function(data) {
 					$("#"+data).prop("checked", true);
+					doGetFreeSpace();
 				}
 			});
 		}
@@ -95,6 +96,16 @@
 				url : 'http://'+ host + ':' + port + '/setRootDir?rootDir=' + el,
 				success : function(data) {
 					doGetDownloadedList();
+				}
+			});
+		}
+		
+		function doGetFreeSpace() {
+			$.ajax({
+				type : 'GET',
+				url : 'http://'+ host + ':' + port + '/getFreeSpace',
+				success : function(data) {
+					 $('#freeSpace').text(data);
 				}
 			});
 		}
@@ -133,6 +144,7 @@
 						});
 		
 		function doGetDownloadedList() {
+			doGetFreeSpace();
 			$.ajax({
 				type : 'GET',
 				url : 'http://'+ host + ':' + port + '/downloadedList',

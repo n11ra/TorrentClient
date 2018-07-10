@@ -25,7 +25,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication().withUser("torrent").password("zxcvbnm123").authorities("ROLE_USER");
+		auth.inMemoryAuthentication().withUser("torrent").password("qwer1234").authorities("ROLE_USER");
 	}
 
 	@Override

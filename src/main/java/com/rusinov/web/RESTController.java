@@ -52,6 +52,16 @@ public class RESTController {
 		return null;
 	}
 
+	@RequestMapping(value = { "getFreeSpace" }, method = RequestMethod.GET)
+	public String getFreeSpace() {
+		try {
+			return Utils.convertToHumanReadableScale(new File(Application.getRootDir()).getFreeSpace());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "Error...";
+	}
+
 	@RequestMapping(value = { "setRootDir" }, method = RequestMethod.GET)
 	public void setRootDir(@RequestParam(value = "rootDir", required = true) String rootDir) {
 		try {
