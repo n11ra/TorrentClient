@@ -3,12 +3,16 @@ package com.rusinov.web;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -137,6 +141,21 @@ public class RESTController {
 			if (!taskDir.exists()) {
 				taskDir.mkdirs();
 			}
+			
+	        Set<PosixFilePermission> fullPermission = new HashSet<PosixFilePermission>();
+	        fullPermission.add(PosixFilePermission.OWNER_EXECUTE);
+	        fullPermission.add(PosixFilePermission.OWNER_READ);
+	        fullPermission.add(PosixFilePermission.OWNER_WRITE);
+
+	        fullPermission.add(PosixFilePermission.GROUP_EXECUTE);
+	        fullPermission.add(PosixFilePermission.GROUP_READ);
+	        fullPermission.add(PosixFilePermission.GROUP_WRITE);
+
+	        fullPermission.add(PosixFilePermission.OTHERS_EXECUTE);
+	        fullPermission.add(PosixFilePermission.OTHERS_READ);
+	        fullPermission.add(PosixFilePermission.OTHERS_WRITE);
+	        
+	        Files.setPosixFilePermissions(taskDir.toPath(), fullPermission);    
 
 			// download and unzip/unrar subs
 			try {
