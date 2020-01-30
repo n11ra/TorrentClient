@@ -23,14 +23,14 @@ public class StorageManager {
 
 	public void loadStorage() throws IOException {
 		downloaded.clear();
-		File rootStorage = new File(Application.getRootDir());
+		File rootStorage = new File(Application.ROOT_OSMC);
 		if (!rootStorage.exists()) {
 			rootStorage.mkdirs();
 		}
 
-		for (File file : new File(Application.getRootDir()).listFiles()) {
+		for (File file : rootStorage.listFiles()) {
 			if (file.isDirectory()) {
-				if (file.listFiles().length == 0) {
+				if (file.listFiles().length <= 0) {
 					file.delete();
 					continue;
 				}
@@ -38,17 +38,9 @@ public class StorageManager {
 				List<File> files = new ArrayList<>();
 				Utils.getFiles(file, files);
 
-				addToDownloaded(taskName, new DownloadedInfo(files, new Date()));
+				downloaded.put(taskName, new DownloadedInfo(files, new Date()));
 			}
 		}
-	}
-
-	public void addToDownloaded(String key, DownloadedInfo object) {
-		downloaded.put(key, object);
-	}
-
-	public void removeFromDownloaded(String key) {
-		
 	}
 
 	public Map<String, DownloadedInfo> getDownloaded() {
@@ -58,20 +50,20 @@ public class StorageManager {
 	public void deleteFile(String taskName, String filePath) {
 		if (downloaded.containsKey(taskName)) {
 			if (filePath == null) {
-				FileSystemUtils.deleteRecursively(new File(Application.getRootDir() + "/" + taskName));
+				FileSystemUtils.deleteRecursively(new File(Application.ROOT_OSMC + "/" + taskName));
 				downloaded.remove(taskName);
 			} else {
 				File fileToDel = new File(filePath);
 
 				// don't delete anything outside
-				if (!fileToDel.getAbsolutePath().startsWith(Application.getRootDir())) {
+				if (!fileToDel.getAbsolutePath().startsWith(Application.ROOT_OSMC)) {
 					return;
 				}
 
 				if (!fileToDel.exists()) {
 					if(fileToDel.getParentFile() != null && fileToDel.getParentFile().list().length <= 0) {
 						fileToDel.getParentFile().delete();
-						removeFromDownloaded(taskName);
+						downloaded.remove(taskName);
 					}
 					return;
 				}
@@ -83,7 +75,7 @@ public class StorageManager {
 						}
 						if (file.getParentFile().list().length <= 0) {
 							file.getParentFile().delete();
-							removeFromDownloaded(taskName);
+							downloaded.remove(taskName);
 						}
 						break;
 					}

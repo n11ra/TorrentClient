@@ -49,7 +49,7 @@ public class RESTController {
 	@RequestMapping(value = { "rootDir" }, method = RequestMethod.GET)
 	public String getRootDir() {
 		try {
-			return Application.getRootDirForWeb();
+			return Application.ROOT_OSMC;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -59,32 +59,17 @@ public class RESTController {
 	@RequestMapping(value = { "getFreeSpace" }, method = RequestMethod.GET)
 	public String getFreeSpace() {
 		try {
-			return Utils.convertToHumanReadableScale(new File(Application.getRootDir()).getFreeSpace());
+			return Utils.convertToHumanReadableScale(new File(Application.ROOT_OSMC).getFreeSpace());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return "Error...";
 	}
 
-	@RequestMapping(value = { "setRootDir" }, method = RequestMethod.GET)
-	public void setRootDir(@RequestParam(value = "rootDir", required = true) String rootDir) {
+	@RequestMapping(value = { "handleSubtitles" }, method = RequestMethod.GET)
+	public void handleSubtitles(@RequestParam(value = "taskName", required = true) String taskName) {
 		try {
-			Application.switchRootDir(rootDir);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				storageManager.loadStorage();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@RequestMapping(value = { "findRenameAndMoveSubtitles" }, method = RequestMethod.GET)
-	public void findRenameAndMoveSubtitles(@RequestParam(value = "taskName", required = true) String taskName) {
-		try {
-			Utils.findRenameAndMoveSubtitles(new File(Application.getRootDir() + "/" + taskName));
+			Utils.handleSubtitles(new File(Application.ROOT_OSMC + "/" + taskName));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -137,7 +122,7 @@ public class RESTController {
 			System.out.println("Downloading torrent Name:" + body.getTaskName() + " URL:" + body.getTorrentURL()
 					+ " Subs: " + body.getSubtitleURL());
 
-			File taskDir = new File(Application.getRootDir() + "/" + body.getTaskName());
+			File taskDir = new File(Application.ROOT_OSMC + "/" + body.getTaskName());
 			if (!taskDir.exists()) {
 				taskDir.mkdirs();
 			}

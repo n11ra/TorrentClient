@@ -40,7 +40,7 @@ public class Utils {
 		return "";
 	}
 
-	public static void findRenameAndMoveSubtitles(File taskDir) {
+	public static void handleSubtitles(File taskDir) {
 		if (taskDir == null || !taskDir.exists() || !taskDir.isDirectory()) {
 			return;
 		}
@@ -135,7 +135,7 @@ public class Utils {
 			}
 		}
 
-		File file = new File(Application.getRootDir() + "/" + taskName + "/" + fileName);
+		File file = new File(Application.ROOT_OSMC + "/" + taskName + "/" + fileName);
 		file.createNewFile();
 		FileCopyUtils.copy(conn.getInputStream(), new FileOutputStream(file));
 		return file;
@@ -152,7 +152,7 @@ public class Utils {
 			conn.setRequestProperty("Cookie", cookie);
 		}
 
-		File file = new File(Application.getRootDir() + "/" + taskName + "/" + fileName);
+		File file = new File(Application.ROOT_OSMC + "/" + taskName + "/" + fileName);
 		file.createNewFile();
 		FileCopyUtils.copy(conn.getInputStream(), new FileOutputStream(file));
 
@@ -196,7 +196,7 @@ public class Utils {
 	}
 	
 	public static void startTorrentDownload(String taskName, File torrent) throws IOException {
-		new java.lang.ProcessBuilder("transmission-remote", "-a", torrent.getAbsolutePath(), "-w", Application.getRootDir() + "/" + taskName).start();
+		new java.lang.ProcessBuilder("transmission-remote", "-a", torrent.getAbsolutePath(), "-w", Application.ROOT_OSMC + "/" + taskName).start();
 	}
 
 	public static void unzip(File zip, File targetDir) throws IOException {
